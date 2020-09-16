@@ -5,6 +5,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.nio.channels.AsynchronousChannelGroup;
 import java.nio.channels.AsynchronousServerSocketChannel;
 import java.nio.channels.AsynchronousSocketChannel;
@@ -14,17 +15,36 @@ import java.nio.charset.CharsetDecoder;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import basics.demo.io.redis.utils.RedisCommand;
+import basics.demo.io.redis.utils.RedisServer;
+
 public class TcpServer {
 
 	public static final String SERVICE_IP = "127.0.0.1";
 
 	public static final int SERVICE_PORT = 8907;
 
-	public final String END_CHAR = "#";
+	public static final String END_CHAR = "#";
 
 	private AsynchronousServerSocketChannel serverSocketChannel;
 
 	private AsynchronousChannelGroup channelGroup;
+
+	public static void main(String[] args) {
+
+		TcpServer server = new TcpServer();
+		server.startListen();
+
+		while (true) {
+
+			try {
+				Thread.sleep(1000l);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
 
 	public void startListen() {
 
@@ -96,6 +116,24 @@ class AioReadHandler implements CompletionHandler<Integer, ByteBuffer> {
 			try {
 				System.out.println("收到" + socket.getRemoteAddress().toString() + "的消息:" + decoder.decode(bb));
 				bb.compact();
+
+				String content = decoder.decode(bb).toString();
+
+				if (!content.isEmpty()) {
+
+					int indexEnd = content.lastIndexOf(TcpServer.END_CHAR);
+
+					if (indexEnd >= 0) {
+
+						// 执行命令
+						RedisCommand command = RedisServer.analysis(content.substring(0, indexEnd));
+						String resultStr = RedisServer.exec(command);
+						System.out.println("exec result:" + resultStr);
+
+						this.socket.write(ByteBuffer.wrap(resultStr.getBytes())).get();// 返回执行结果
+					}
+				}
+
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
