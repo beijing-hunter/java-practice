@@ -93,17 +93,17 @@ class AioAcceptHandler implements CompletionHandler<AsynchronousSocketChannel, A
 
 	public void startRead(AsynchronousSocketChannel socket) {
 		ByteBuffer clientBuffer = ByteBuffer.allocate(1024);
-		socket.read(clientBuffer, clientBuffer, new AioReadHandler(socket));
+		socket.read(clientBuffer, clientBuffer, new AioReadHandler2(socket));
 	}
 }
 
-class AioReadHandler implements CompletionHandler<Integer, ByteBuffer> {
+class AioReadHandler2 implements CompletionHandler<Integer, ByteBuffer> {
 
 	private AsynchronousSocketChannel socket;
 
 	private CharsetDecoder decoder = Charset.forName("GBK").newDecoder();
 
-	public AioReadHandler(AsynchronousSocketChannel socket) {
+	public AioReadHandler2(AsynchronousSocketChannel socket) {
 		this.socket = socket;
 	}
 
@@ -114,10 +114,9 @@ class AioReadHandler implements CompletionHandler<Integer, ByteBuffer> {
 			bb.flip();
 
 			try {
-				System.out.println("收到" + socket.getRemoteAddress().toString() + "的消息:" + decoder.decode(bb));
-				bb.compact();
-
+				
 				String content = decoder.decode(bb).toString();
+				System.out.println("收到" + socket.getRemoteAddress().toString() + "的消息:" + content);
 
 				if (!content.isEmpty()) {
 
@@ -134,12 +133,13 @@ class AioReadHandler implements CompletionHandler<Integer, ByteBuffer> {
 					}
 				}
 
+				bb.compact();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 
 			this.socket.read(bb, bb, this);
-		} else {
+		} else if (result == -1) {
 
 			try {
 				System.out.println("客户端断线:" + socket.getRemoteAddress().toString());
