@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import shard.datasource.entity.T1;
+import shard.datasource.entity.T3;
 import shard.datasource.service.AppServiceImpl;
 
 @Controller
@@ -20,6 +21,14 @@ public class AppController {
 	public T1 getInfo() {
 
 		T1 info = this.appService.getT1();
+		return info;
+	}
+
+	@RequestMapping(value = "info3")
+	@ResponseBody
+	public T3 getInfo3() {
+
+		T3 info = this.appService.getT3();
 		return info;
 	}
 }

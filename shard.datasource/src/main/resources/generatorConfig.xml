@@ -18,7 +18,7 @@
 
         <!-- 数据库连接 -->
         <jdbcConnection driverClass="com.mysql.jdbc.Driver"
-                        connectionURL="jdbc:mysql://123.56.4.34:3307/db01?useUnicode=true&amp;characterEncoding=UTF8&amp;connectTimeout=5000&amp;socketTimeout=10000"
+                        connectionURL="jdbc:mysql://123.56.4.34:3307/db02?useUnicode=true&amp;characterEncoding=UTF8&amp;connectTimeout=5000&amp;socketTimeout=10000"
                         userId="cmt3307"
                         password="oracle">
         </jdbcConnection>
@@ -49,15 +49,7 @@
         </javaClientGenerator>
 
 
-        <table tableName="t1"
-               enableCountByExample="true"
-               enableUpdateByExample="true"
-               enableDeleteByExample="true"
-               enableSelectByExample="true"
-               selectByExampleQueryId="true">
-               <generatedKey column="id" sqlStatement="id"/>
-        </table>
-        <table tableName="t2"
+        <table tableName="t3"
                enableCountByExample="true"
                enableUpdateByExample="true"
                enableDeleteByExample="true"
