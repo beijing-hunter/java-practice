@@ -50,20 +50,11 @@
 		<property name="timeBetweenEvictionRunsMillis" value="${jdbc.timeBetweenEvictionRunsMillis}" />
 		<property name="minEvictableIdleTimeMillis" value="${jdbc.minEvictableIdleTimeMillis}" />
 	</bean>
-	
-	<bean id="dataSourceFactory" class="shard.datasource.factorys.DataSourceFactory">
-		<property name="targetDataSources">
-			<map key-type="java.lang.String">
-				<entry key="dataSource_db01" value-ref="dataSource_db01"></entry>
-				<entry key="dataSource_db02" value-ref="dataSource_db02"></entry>
-			</map>
-		</property>
-	</bean>
 
 	<!-- 事务管理器 对mybatis的事务管理，spring使用jdbc的事务 -->
 	<bean id="transactionManager"
 		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-		<property name="dataSource" ref="dataSourceFactory" />
+		<property name="dataSource" ref="dataSource_db01" />
 	</bean>
 	
 	 <!-- 使用annotation定义事务 -->

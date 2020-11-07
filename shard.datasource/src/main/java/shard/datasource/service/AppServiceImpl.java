@@ -2,6 +2,7 @@ package shard.datasource.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import shard.datasource.entity.T1;
 import shard.datasource.entity.T3;
@@ -17,8 +18,10 @@ public class AppServiceImpl {
 	@Autowired
 	private T3Mapper t3Mapper;
 
+	@Transactional(rollbackFor = { Exception.class, RuntimeException.class })
 	public T1 getT1() {
 
+		this.getT3();
 		return this.t1Mapper.selectByPrimaryKey(1);
 	}
 

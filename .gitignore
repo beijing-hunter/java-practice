@@ -1,1 +1,3 @@
 *.class
+shard.datasource/.settings/
+shard.datasource/.project

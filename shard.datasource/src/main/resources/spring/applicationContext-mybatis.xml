@@ -15,12 +15,19 @@
 		http://www.springframework.org/schema/tx/spring-tx-3.2.xsd ">
 
 	<bean id="sqlSessionFactoryBuilder" class="org.apache.ibatis.session.SqlSessionFactoryBuilder"></bean>
-	<bean id="dataSourceInterceptor" class="shard.datasource.factorys.SqlDataSourceInterceptor"></bean>
+	<bean id="dataSourceInterceptor" class="shard.datasource.factorys.SqlDataSourceInterceptor">
+		<property name="dataSourceMap">
+			<map key-type="java.lang.String">
+				<entry key="dataSource_db01" value-ref="dataSource_db01"></entry>
+				<entry key="dataSource_db02" value-ref="dataSource_db02"></entry>
+			</map>
+		</property>
+	</bean>
 
 	<!-- mybatis运行环境 -->
 	<!-- 配置会话工厂，由spring管理 -->
 	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
-		<property name="dataSource" ref="dataSourceFactory" />
+		<property name="dataSource" ref="dataSource_db01" />
 		<property name="sqlSessionFactoryBuilder" ref="sqlSessionFactoryBuilder" />
 		<!-- mybatis全局配置文件 -->
 		<property name="configLocation" value="classpath:mybatis/SqlMapperConfig.xml"></property>
