@@ -34,6 +34,9 @@ import org.apache.ibatis.executor.CachingExecutor;
 @Intercepts({ @Signature(type = Executor.class, method = "query", args = { MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class }) })
 public class SqlDataSourceInterceptor implements Interceptor {
 
+	@Autowired
+	private DataSourceTableRule tableRule;
+
 	private Map<String, DataSource> dataSourceMap;
 
 	public Map<String, DataSource> getDataSourceMap() {
@@ -43,9 +46,6 @@ public class SqlDataSourceInterceptor implements Interceptor {
 	public void setDataSourceMap(Map<String, DataSource> dataSourceMap) {
 		this.dataSourceMap = dataSourceMap;
 	}
-
-	@Autowired
-	private DataSourceTableRule tableRule;
 
 	public Object intercept(Invocation invocation) throws Throwable {
 
