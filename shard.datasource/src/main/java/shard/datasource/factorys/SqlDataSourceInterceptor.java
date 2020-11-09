@@ -31,8 +31,7 @@ import org.apache.ibatis.executor.CachingExecutor;
  *
  */
 @SuppressWarnings("rawtypes")
-@Intercepts({ @Signature(type = Executor.class, method = "query", args = { MappedStatement.class, Object.class,
-		RowBounds.class, ResultHandler.class }) })
+@Intercepts({ @Signature(type = Executor.class, method = "query", args = { MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class }) })
 public class SqlDataSourceInterceptor implements Interceptor {
 
 	private Map<String, DataSource> dataSourceMap;
@@ -61,12 +60,16 @@ public class SqlDataSourceInterceptor implements Interceptor {
 
 		Field fieldConnection = t.getClass().getDeclaredField("connection");
 		Field fieldAutoCommit = t.getClass().getDeclaredField("autoCommit");
+		Field fieldDataSource = t.getClass().getDeclaredField("dataSource");
 		fieldConnection.setAccessible(true);
 		fieldAutoCommit.setAccessible(true);
+		fieldDataSource.setAccessible(true);
 
-		Connection connection = DataSourceUtils.getConnection(this.dataSourceMap.get(dataSourceKey));
+		DataSource dataSource = this.dataSourceMap.get(dataSourceKey);
+		Connection connection = DataSourceUtils.getConnection(dataSource);
 		fieldConnection.set(t, connection);
 		fieldAutoCommit.set(t, connection.getAutoCommit());
+		fieldDataSource.set(t, dataSource);
 
 		Object result = invocation.proceed();
 		return result;
