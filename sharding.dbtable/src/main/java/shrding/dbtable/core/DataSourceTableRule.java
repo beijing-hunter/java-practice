@@ -1,0 +1,185 @@
+package shrding.dbtable.core;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.alibaba.fastjson.JSON;
+
+import net.sf.jsqlparser.JSQLParserException;
+import net.sf.jsqlparser.parser.CCJSqlParserUtil;
+import net.sf.jsqlparser.statement.Statement;
+import net.sf.jsqlparser.statement.select.Select;
+import net.sf.jsqlparser.util.TablesNamesFinder;
+
+/**
+ * 
+ * @author:高崖雷
+ * @date:Nov 11, 2020 3:08:05 PM
+ * @version:V1.0 版权：版权归作者所有，禁止外泄以及其他商业项目
+ */
+public class DataSourceTableRule {
+
+	/**
+	 * 默认数据源key
+	 */
+	private String defaultDataSourceKey;
+
+	/**
+	 * 数据源与表之前的映射规则 key:dbName value:tableName
+	 */
+	private Map<String, List<String>> dbAndTableRule;
+
+	/**
+	 * 表与数据源对应关系 key:table,value:dbName
+	 */
+	private Map<String, List<String>> tableAndDbRuleMap;
+
+	private Logger logger = LoggerFactory.getLogger(DataSourceTableRule.class);
+
+	public void setDefaultDataSourceKey(String defaultDataSourceKey) {
+		this.defaultDataSourceKey = defaultDataSourceKey;
+	}
+
+	public String getDefaultDataSourceKey() {
+		return defaultDataSourceKey;
+	}
+
+	public void setDbAndTableRule(Map<String, List<String>> dbAndTableRule) {
+		this.dbAndTableRule = dbAndTableRule;
+	}
+
+	/**
+	 * 解析sql语句
+	 * 
+	 * @param sql
+	 * @return
+	 */
+	public AnalysisResult analysisRule(String sql) {
+
+		if (sql == null) {
+			return null;
+		}
+
+		if (this.dbAndTableRule == null || this.dbAndTableRule.isEmpty()) {
+			return null;
+		}
+
+		this.init();
+
+		Statement statement = null;
+
+		try {
+
+			statement = CCJSqlParserUtil.parse(sql);
+
+			Select selectStatement = (Select) statement;
+			TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
+			List<String> tables = tablesNamesFinder.getTableList(selectStatement);
+			List<String> dbSources = this.extractDbSource(tables);
+			this.logger.debug("sharding.dbtable:tables={},dbName={}", JSON.toJSONString(tables), JSON.toJSONString(dbSources));
+			return new AnalysisResult(dbSources, tables);
+
+		} catch (JSQLParserException e) {
+			this.logger.error("sharding.dbtable-SQLParser异常:", e);
+		}
+
+		return null;
+	}
+
+	/**
+	 * 提取表所在的数据源
+	 * 
+	 * @param tables
+	 * @return
+	 */
+	private List<String> extractDbSource(List<String> tables) {
+
+		if (tables.size() == 1) {// sql 单表查询
+			return this.tableAndDbRuleMap.get(tables.get(0));
+		}
+
+		int retainCount = 0;
+		List<String> retainResults = null;// 多表取数据源交集
+
+		for (String sqlTable : tables) {// 连表查询
+
+			List<String> dataSources = this.tableAndDbRuleMap.get(sqlTable);
+
+			if (dataSources == null) {
+				dataSources = new ArrayList<String>(1);
+				dataSources.add(this.defaultDataSourceKey);
+			}
+
+			List<String> dst = new ArrayList<String>(dataSources);
+
+			if (retainCount == 0) {
+				retainResults = dst;
+				retainCount++;
+			} else {
+				retainResults.retainAll(dst);
+			}
+		}
+
+		return retainResults;
+	}
+
+	/**
+	 * 初始化，反转表与数据源对应关系
+	 */
+	private synchronized void init() {
+
+		if (this.tableAndDbRuleMap == null || this.tableAndDbRuleMap.isEmpty()) {
+
+			this.tableAndDbRuleMap = new HashMap<String, List<String>>();
+			Set<String> dataSourceKeys = this.dbAndTableRule.keySet();
+
+			for (String dataSourceKey : dataSourceKeys) {
+
+				List<String> tables = this.dbAndTableRule.get(dataSourceKey);
+
+				for (String tableKey : tables) {
+
+					List<String> dbKeys = this.tableAndDbRuleMap.get(tableKey);
+
+					if (dbKeys == null) {
+						dbKeys = new ArrayList<String>(3);
+						this.tableAndDbRuleMap.put(tableKey, dbKeys);
+					}
+
+					dbKeys.add(dataSourceKey);
+				}
+			}
+		}
+	}
+
+	class AnalysisResult {
+
+		private List<String> dbSources;
+
+		private List<String> tables;
+
+		public AnalysisResult(List<String> dbSources, List<String> tables) {
+			super();
+			this.dbSources = dbSources;
+			this.tables = tables;
+		}
+
+		public List<String> getDbSources() {
+			return dbSources;
+		}
+
+		public List<String> getTables() {
+			return tables;
+		}
+
+		public boolean isSuccess() {
+			return this.dbSources != null && this.dbSources.size() > 0;
+		}
+	}
+}
