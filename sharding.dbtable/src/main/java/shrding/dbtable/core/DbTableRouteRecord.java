@@ -10,19 +10,12 @@ import java.util.List;
  */
 public class DbTableRouteRecord {
 
-	/**
-	 * join表key
-	 */
+	
 	private String tableNames;
 
-	/**
-	 * join表key,执行次数
-	 */
 	private long exeNum;
 
-	/**
-	 * join表key，常命中的数据库
-	 */
+
 	private List<String> refDbs;
 
 	public DbTableRouteRecord(String tableNames, long exeNum, List<String> refDbs) {

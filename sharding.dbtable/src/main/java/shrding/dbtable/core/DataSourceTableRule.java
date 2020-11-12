@@ -34,14 +34,8 @@ public class DataSourceTableRule {
 
 	private List<String> defaultDataSourceKeyList;
 
-	/**
-	 * 数据源与表之前的映射规则 key:dbName value:tableName
-	 */
 	private Map<String, List<String>> dbAndTableRule;
 
-	/**
-	 * 表与数据源对应关系 key:table,value:dbName
-	 */
 	private Map<String, List<String>> tableAndDbRuleMap;
 
 	private Logger logger = LoggerFactory.getLogger(DataSourceTableRule.class);
@@ -100,15 +94,10 @@ public class DataSourceTableRule {
 		return new AnalysisResult(null, null);
 	}
 
-	/**
-	 * 提取表所在的数据源
-	 * 
-	 * @param tables
-	 * @return
-	 */
+
 	private List<String> extractDbSource(List<String> tables) {
 
-		if (tables.size() == 1) {// sql 单表查询
+		if (tables.size() == 1) {
 			List<String> dbs = this.tableAndDbRuleMap.get(tables.get(0));
 			return dbs == null ? this.defaultDataSourceKeyList : dbs;
 		}
@@ -116,14 +105,14 @@ public class DataSourceTableRule {
 		String joinTableKey = JSON.toJSONString(tables);
 		DbTableRouteRecord dbTableRecord = DbRouteFactory.getRouteTableRecordMap().get(joinTableKey);
 
-		if (dbTableRecord != null) {// 是否有join表key的关联db记录
+		if (dbTableRecord != null) {
 			return dbTableRecord.getRefDbs();
 		}
 
 		int retainCount = 0;
-		List<String> retainResults = null;// 多表取数据源交集
+		List<String> retainResults = null;
 
-		for (String sqlTable : tables) {// 连表查询
+		for (String sqlTable : tables) {
 
 			List<String> dataSources = this.tableAndDbRuleMap.get(sqlTable);
 
@@ -145,9 +134,7 @@ public class DataSourceTableRule {
 		return retainResults;
 	}
 
-	/**
-	 * 初始化，反转表与数据源对应关系
-	 */
+
 	private synchronized void init() {
 
 		if (this.tableAndDbRuleMap == null || this.tableAndDbRuleMap.isEmpty()) {

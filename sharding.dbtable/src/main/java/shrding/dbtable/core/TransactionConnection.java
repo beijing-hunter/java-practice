@@ -24,13 +24,6 @@ public class TransactionConnection {
 
 	private static String fieldUConName = "unwrappedConnection";
 
-	/**
-	 * 反射，动态改变目标事务的数据源
-	 * 
-	 * @param invocation
-	 * @param dataSource
-	 * @throws Exception
-	 */
 	public static void setNewConnection(Invocation invocation, DataSource dataSource) throws Exception {
 
 		CachingExecutor executor = (CachingExecutor) invocation.getTarget();

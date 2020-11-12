@@ -14,14 +14,10 @@ import shrding.dbtable.core.DataSourceTableRule.AnalysisResult;
  */
 public class DbRouteFactory {
 
-	/**
-	 * dbname命中次数
-	 */
+	
 	private static Map<String, Long> routeDbRecordMap = new ConcurrentHashMap<String, Long>();
 
-	/**
-	 * join表key,执行记录
-	 */
+	
 	private static Map<String, DbTableRouteRecord> routeTableRecordMap = new ConcurrentHashMap<String, DbTableRouteRecord>();
 
 	public static Map<String, Long> getRouteDbRecordMap() {
@@ -32,13 +28,7 @@ public class DbRouteFactory {
 		return routeTableRecordMap;
 	}
 
-	/**
-	 * 根据解析结果路由到db，db命中次数最少的负责此次sql执行
-	 * 
-	 * @param defaultDb
-	 * @param result
-	 * @return
-	 */
+
 	public static synchronized String getRouteDbName(List<String> defaultDbs, AnalysisResult result) {
 
 		List<String> dbs = null;
@@ -50,7 +40,7 @@ public class DbRouteFactory {
 			dbs = result.getDbSources();
 		}
 
-		String minDbkey = null;// 查询db命中次数最少的
+		String minDbkey = null;
 		long minExeCount = 0l;
 
 		for (String dbKey : dbs) {
@@ -77,11 +67,7 @@ public class DbRouteFactory {
 		return minDbkey;
 	}
 
-	/**
-	 * 记录join表执行次数
-	 * 
-	 * @param result
-	 */
+
 	private static void tableExeRrecord(AnalysisResult result) {
 
 		if (!result.isSuccess()) {
