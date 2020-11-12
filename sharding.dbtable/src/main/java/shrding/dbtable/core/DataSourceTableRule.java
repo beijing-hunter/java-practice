@@ -1,6 +1,7 @@
 package shrding.dbtable.core;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,6 +9,7 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
 import com.alibaba.fastjson.JSON;
 
@@ -30,6 +32,8 @@ public class DataSourceTableRule {
 	 */
 	private String defaultDataSourceKey;
 
+	private List<String> defaultDataSourceKeyList;
+
 	/**
 	 * 数据源与表之前的映射规则 key:dbName value:tableName
 	 */
@@ -48,6 +52,10 @@ public class DataSourceTableRule {
 
 	public String getDefaultDataSourceKey() {
 		return defaultDataSourceKey;
+	}
+
+	public List<String> getDefaultDataSourceKeyList() {
+		return defaultDataSourceKeyList;
 	}
 
 	public void setDbAndTableRule(Map<String, List<String>> dbAndTableRule) {
@@ -89,7 +97,7 @@ public class DataSourceTableRule {
 			this.logger.error("sharding.dbtable-SQLParser异常:", e);
 		}
 
-		return null;
+		return new AnalysisResult(null, null);
 	}
 
 	/**
@@ -101,7 +109,15 @@ public class DataSourceTableRule {
 	private List<String> extractDbSource(List<String> tables) {
 
 		if (tables.size() == 1) {// sql 单表查询
-			return this.tableAndDbRuleMap.get(tables.get(0));
+			List<String> dbs = this.tableAndDbRuleMap.get(tables.get(0));
+			return dbs == null ? this.defaultDataSourceKeyList : dbs;
+		}
+
+		String joinTableKey = JSON.toJSONString(tables);
+		DbTableRouteRecord dbTableRecord = DbRouteFactory.getRouteTableRecordMap().get(joinTableKey);
+
+		if (dbTableRecord != null) {// 是否有join表key的关联db记录
+			return dbTableRecord.getRefDbs();
 		}
 
 		int retainCount = 0;
@@ -156,6 +172,12 @@ public class DataSourceTableRule {
 				}
 			}
 		}
+
+		if (this.defaultDataSourceKey != null) {
+
+			String[] keys = this.defaultDataSourceKey.split(",");
+			this.defaultDataSourceKeyList = Arrays.asList(keys);
+		}
 	}
 
 	class AnalysisResult {
@@ -179,7 +201,18 @@ public class DataSourceTableRule {
 		}
 
 		public boolean isSuccess() {
+
 			return this.dbSources != null && this.dbSources.size() > 0;
 		}
+
+		public String getJoinTableKey() {
+
+			if (tables == null || tables.isEmpty()) {
+				return null;
+			}
+
+			return JSON.toJSONString(tables);
+		}
+
 	}
 }
