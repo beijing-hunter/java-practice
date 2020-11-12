@@ -1,47 +1,21 @@
 package shrding.dbtable.core;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.StringUtils;
 
 import com.alibaba.fastjson.JSON;
 
-import net.sf.jsqlparser.JSQLParserException;
-import net.sf.jsqlparser.parser.CCJSqlParserUtil;
-import net.sf.jsqlparser.statement.Statement;
-import net.sf.jsqlparser.statement.select.Select;
-import net.sf.jsqlparser.util.TablesNamesFinder;
-
-/**
- * 
- * @author:高崖雷
- * @date:Nov 11, 2020 3:08:05 PM
- * @version:V1.0 版权：版权归作者所有，禁止外泄以及其他商业项目
- */
 public class DataSourceTableRule {
 
-	/**
-	 * 默认数据源key
-	 */
 	private String defaultDataSourceKey;
 
 	private List<String> defaultDataSourceKeyList;
 
-	/**
-	 * 数据源与表之前的映射规则 key:dbName value:tableName
-	 */
 	private Map<String, List<String>> dbAndTableRule;
 
-	/**
-	 * 表与数据源对应关系 key:table,value:dbName
-	 */
 	private Map<String, List<String>> tableAndDbRuleMap;
 
 	private Logger logger = LoggerFactory.getLogger(DataSourceTableRule.class);
@@ -78,106 +52,16 @@ public class DataSourceTableRule {
 			return null;
 		}
 
-		this.init();
-
-		Statement statement = null;
-
-		try {
-
-			statement = CCJSqlParserUtil.parse(sql);
-
-			Select selectStatement = (Select) statement;
-			TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
-			List<String> tables = tablesNamesFinder.getTableList(selectStatement);
-			List<String> dbSources = this.extractDbSource(tables);
-			this.logger.debug("sharding.dbtable:tables={},dbName={}", JSON.toJSONString(tables), JSON.toJSONString(dbSources));
-			return new AnalysisResult(dbSources, tables);
-
-		} catch (JSQLParserException e) {
-			this.logger.error("sharding.dbtable-SQLParser异常:", e);
-		}
-
 		return new AnalysisResult(null, null);
 	}
 
-	/**
-	 * 提取表所在的数据源
-	 * 
-	 * @param tables
-	 * @return
-	 */
 	private List<String> extractDbSource(List<String> tables) {
 
-		if (tables.size() == 1) {// sql 单表查询
-			List<String> dbs = this.tableAndDbRuleMap.get(tables.get(0));
-			return dbs == null ? this.defaultDataSourceKeyList : dbs;
-		}
-
-		String joinTableKey = JSON.toJSONString(tables);
-		DbTableRouteRecord dbTableRecord = DbRouteFactory.getRouteTableRecordMap().get(joinTableKey);
-
-		if (dbTableRecord != null) {// 是否有join表key的关联db记录
-			return dbTableRecord.getRefDbs();
-		}
-
-		int retainCount = 0;
-		List<String> retainResults = null;// 多表取数据源交集
-
-		for (String sqlTable : tables) {// 连表查询
-
-			List<String> dataSources = this.tableAndDbRuleMap.get(sqlTable);
-
-			if (dataSources == null) {
-				dataSources = new ArrayList<String>(1);
-				dataSources.add(this.defaultDataSourceKey);
-			}
-
-			List<String> dst = new ArrayList<String>(dataSources);
-
-			if (retainCount == 0) {
-				retainResults = dst;
-				retainCount++;
-			} else {
-				retainResults.retainAll(dst);
-			}
-		}
-
-		return retainResults;
+		return null;
 	}
 
-	/**
-	 * 初始化，反转表与数据源对应关系
-	 */
 	private synchronized void init() {
 
-		if (this.tableAndDbRuleMap == null || this.tableAndDbRuleMap.isEmpty()) {
-
-			this.tableAndDbRuleMap = new HashMap<String, List<String>>();
-			Set<String> dataSourceKeys = this.dbAndTableRule.keySet();
-
-			for (String dataSourceKey : dataSourceKeys) {
-
-				List<String> tables = this.dbAndTableRule.get(dataSourceKey);
-
-				for (String tableKey : tables) {
-
-					List<String> dbKeys = this.tableAndDbRuleMap.get(tableKey);
-
-					if (dbKeys == null) {
-						dbKeys = new ArrayList<String>(3);
-						this.tableAndDbRuleMap.put(tableKey, dbKeys);
-					}
-
-					dbKeys.add(dataSourceKey);
-				}
-			}
-		}
-
-		if (this.defaultDataSourceKey != null) {
-
-			String[] keys = this.defaultDataSourceKey.split(",");
-			this.defaultDataSourceKeyList = Arrays.asList(keys);
-		}
 	}
 
 	class AnalysisResult {
