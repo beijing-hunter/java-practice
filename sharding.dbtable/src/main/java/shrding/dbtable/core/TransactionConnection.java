@@ -31,11 +31,10 @@ public class TransactionConnection {
 	 * @param dataSource
 	 * @throws Exception
 	 */
-	public static void setNewConnection(Invocation invocation, DataSource dataSource) throws Exception {
+	public static TransactionContext setNewConnection(Invocation invocation, DataSource dataSource) throws Exception {
 
 		CachingExecutor executor = (CachingExecutor) invocation.getTarget();
 		SpringManagedTransaction transaction = (SpringManagedTransaction) executor.getTransaction();
-		transaction.close();
 
 		Field fieldConnection = transaction.getClass().getDeclaredField(fieldConName);
 		Field fieldDataSource = transaction.getClass().getDeclaredField(fieldDbName);
@@ -45,8 +44,37 @@ public class TransactionConnection {
 		fieldUnwrappedConnection.setAccessible(true);
 
 		Connection connection = DataSourceUtils.getConnection(dataSource);
+
+		TransactionContext context = new TransactionContext(transaction, fieldConnection.get(transaction), fieldUnwrappedConnection.get(transaction), fieldDataSource.get(transaction), dataSource, connection);
+
 		fieldConnection.set(transaction, connection);
 		fieldDataSource.set(transaction, dataSource);
 		fieldUnwrappedConnection.set(transaction, connection);
+
+		return context;
+	}
+
+	/**
+	 * 关闭连接，将事务字段属性恢复到原来的面貌
+	 * 
+	 * @param invocation
+	 * @param context
+	 * @throws Exception
+	 */
+	public static void close(Invocation invocation, TransactionContext context) throws Exception {
+
+		DataSourceUtils.releaseConnection(context.getNewConnection(), context.getNewDataSource());
+
+		SpringManagedTransaction transaction = context.getTransaction();
+		Field fieldConnection = transaction.getClass().getDeclaredField(fieldConName);
+		Field fieldDataSource = transaction.getClass().getDeclaredField(fieldDbName);
+		Field fieldUnwrappedConnection = transaction.getClass().getDeclaredField(fieldUConName);
+		fieldConnection.setAccessible(true);
+		fieldDataSource.setAccessible(true);
+		fieldUnwrappedConnection.setAccessible(true);
+
+		fieldConnection.set(transaction, context.getOldCon());
+		fieldDataSource.set(transaction, context.getOldDataSource());
+		fieldUnwrappedConnection.set(transaction, context.getOldUCon());
 	}
 }
