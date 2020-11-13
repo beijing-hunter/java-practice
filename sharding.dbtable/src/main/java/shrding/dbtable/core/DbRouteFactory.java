@@ -52,6 +52,7 @@ public class DbRouteFactory {
 
 		String minDbkey = null;// 查询db命中次数最少的
 		long minExeCount = 0l;
+		int i = 0;// 辅助计算
 
 		for (String dbKey : dbs) {
 
@@ -62,9 +63,10 @@ public class DbRouteFactory {
 				routeDbRecordMap.put(dbKey, exeCount);
 			}
 
-			if (minExeCount == 0) {
+			if (i == 0) {
 				minExeCount = exeCount;
 				minDbkey = dbKey;
+				i++;
 			}
 
 			if (exeCount <= minExeCount) {
