@@ -46,6 +46,13 @@ public class TransactionConnection {
 		return context;
 	}
 
+	/**
+	 * 关闭连接，将事务字段属性恢复到原来的面貌
+	 * 
+	 * @param invocation
+	 * @param context
+	 * @throws Exception
+	 */
 	public static void close(Invocation invocation, TransactionContext context) throws Exception {
 
 		DataSourceUtils.releaseConnection(context.getNewConnection(), context.getNewDataSource());
