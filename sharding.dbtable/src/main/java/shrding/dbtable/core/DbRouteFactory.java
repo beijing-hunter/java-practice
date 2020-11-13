@@ -14,10 +14,8 @@ import shrding.dbtable.core.DataSourceTableRule.AnalysisResult;
  */
 public class DbRouteFactory {
 
-	
 	private static Map<String, Long> routeDbRecordMap = new ConcurrentHashMap<String, Long>();
 
-	
 	private static Map<String, DbTableRouteRecord> routeTableRecordMap = new ConcurrentHashMap<String, DbTableRouteRecord>();
 
 	public static Map<String, Long> getRouteDbRecordMap() {
@@ -27,7 +25,6 @@ public class DbRouteFactory {
 	public static Map<String, DbTableRouteRecord> getRouteTableRecordMap() {
 		return routeTableRecordMap;
 	}
-
 
 	public static synchronized String getRouteDbName(List<String> defaultDbs, AnalysisResult result) {
 
@@ -42,6 +39,7 @@ public class DbRouteFactory {
 
 		String minDbkey = null;
 		long minExeCount = 0l;
+		int i = 0;
 
 		for (String dbKey : dbs) {
 
@@ -52,9 +50,10 @@ public class DbRouteFactory {
 				routeDbRecordMap.put(dbKey, exeCount);
 			}
 
-			if (minExeCount == 0) {
+			if (i == 0) {
 				minExeCount = exeCount;
 				minDbkey = dbKey;
+				i++;
 			}
 
 			if (exeCount <= minExeCount) {
@@ -66,7 +65,6 @@ public class DbRouteFactory {
 		routeDbRecordMap.put(minDbkey, minExeCount + 1);
 		return minDbkey;
 	}
-
 
 	private static void tableExeRrecord(AnalysisResult result) {
 
