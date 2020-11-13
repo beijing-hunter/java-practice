@@ -6,7 +6,6 @@ import javax.sql.DataSource;
 
 import org.apache.ibatis.plugin.Invocation;
 
-
 public class ShardDbTableHandler {
 
 	private boolean env = false;
@@ -27,10 +26,16 @@ public class ShardDbTableHandler {
 		this.dataSourceMap = dataSourceMap;
 	}
 
-	public void handler(Invocation invocation) throws Exception {
+	public TransactionContext handler(Invocation invocation) throws Exception {
 
 		if (!this.env) {
-			return;
+			return null;
 		}
+
+		return null;
+	}
+
+	public void close(Invocation invocation, TransactionContext context) throws Exception {
+
 	}
 }
