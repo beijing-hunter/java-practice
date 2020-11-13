@@ -72,7 +72,9 @@ public class DataSourceTableRule {
 			return null;
 		}
 
-		this.init();
+		if (this.tableAndDbRuleMap == null || this.tableAndDbRuleMap.isEmpty()) {
+			this.init();
+		}
 
 		Statement statement = null;
 
@@ -93,7 +95,6 @@ public class DataSourceTableRule {
 
 		return new AnalysisResult(null, null);
 	}
-
 
 	private List<String> extractDbSource(List<String> tables) {
 
@@ -133,7 +134,6 @@ public class DataSourceTableRule {
 
 		return retainResults;
 	}
-
 
 	private synchronized void init() {
 
