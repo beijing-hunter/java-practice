@@ -53,6 +53,11 @@ public class ShardDbTableHandler {
 	}
 
 	public void close(Invocation invocation, TransactionContext context) throws Exception {
+
+		if (context == null) {
+			return;
+		}
+
 		TransactionConnection.close(invocation, context);
 	}
 }
