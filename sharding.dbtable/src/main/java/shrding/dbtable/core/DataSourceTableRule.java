@@ -78,7 +78,9 @@ public class DataSourceTableRule {
 			return null;
 		}
 
-		this.init();
+		if (this.tableAndDbRuleMap == null || this.tableAndDbRuleMap.isEmpty()) {
+			this.init();
+		}
 
 		Statement statement = null;
 
