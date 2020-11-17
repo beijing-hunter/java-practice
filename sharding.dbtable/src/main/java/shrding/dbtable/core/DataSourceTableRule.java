@@ -92,7 +92,7 @@ public class DataSourceTableRule {
 			}
 
 		} catch (JSQLParserException e) {
-			this.logger.error("sharding.dbtable-SQLParser异常:", e);
+			//this.logger.error("sharding.dbtable-SQLParser异常:", e);
 		}
 
 		return new AnalysisResult(null, null);
