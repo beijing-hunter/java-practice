@@ -82,12 +82,14 @@ public class DataSourceTableRule {
 
 			statement = CCJSqlParserUtil.parse(sql);
 
-			Select selectStatement = (Select) statement;
-			TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
-			List<String> tables = tablesNamesFinder.getTableList(selectStatement);
-			List<String> dbSources = this.extractDbSource(tables);
-			this.logger.debug("sharding.dbtable:tables={},dbName={}", JSON.toJSONString(tables), JSON.toJSONString(dbSources));
-			return new AnalysisResult(dbSources, tables);
+			if (statement instanceof Select) {
+				Select selectStatement = (Select) statement;
+				TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
+				List<String> tables = tablesNamesFinder.getTableList(selectStatement);
+				List<String> dbSources = this.extractDbSource(tables);
+				this.logger.debug("sharding.dbtable:tables={},dbName={}", JSON.toJSONString(tables), JSON.toJSONString(dbSources));
+				return new AnalysisResult(dbSources, tables);
+			}
 
 		} catch (JSQLParserException e) {
 			this.logger.error("sharding.dbtable-SQLParser异常:", e);
