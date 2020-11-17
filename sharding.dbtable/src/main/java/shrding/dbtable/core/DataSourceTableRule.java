@@ -87,7 +87,7 @@ public class DataSourceTableRule {
 				TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
 				List<String> tables = tablesNamesFinder.getTableList(selectStatement);
 				List<String> dbSources = this.extractDbSource(tables);
-				this.logger.debug("sharding.dbtable:tables={},dbName={}", JSON.toJSONString(tables), JSON.toJSONString(dbSources));
+				//this.logger.debug("sharding.dbtable:tables={},dbName={}", JSON.toJSONString(tables), JSON.toJSONString(dbSources));
 				return new AnalysisResult(dbSources, tables);
 			}
 
