@@ -121,7 +121,7 @@ public class DataSourceTableRule {
 
 			if (dataSources == null) {
 				dataSources = new ArrayList<String>(1);
-				dataSources.add(this.defaultDataSourceKey);
+				dataSources.addAll(this.defaultDataSourceKeyList);
 			}
 
 			List<String> dst = new ArrayList<String>(dataSources);
