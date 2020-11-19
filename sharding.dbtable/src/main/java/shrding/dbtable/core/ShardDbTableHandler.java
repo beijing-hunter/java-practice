@@ -45,10 +45,9 @@ public class ShardDbTableHandler {
 			return null;
 		}
 
-		String sql = ExecutorPluginUtils.getSqlByInvocation(invocation);
+		this.tableRule.init(true);
 
-		AnalysisResult result = this.tableRule.analysisRule(sql);
-		String dataSourceKey = DbRouteFactory.getRouteDbName(this.tableRule.getDefaultDataSourceKeyList(), result);
+		String dataSourceKey = DbRouteFactory.getRouteDbName(this.tableRule.getDefaultDataSourceKeyList(), null);
 		return TransactionConnection.setNewConnection(invocation, this.dataSourceMap.get(dataSourceKey));
 	}
 

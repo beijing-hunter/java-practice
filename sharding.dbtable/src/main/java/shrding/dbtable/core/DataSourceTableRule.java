@@ -40,6 +40,13 @@ public class DataSourceTableRule {
 
 	private Logger logger = LoggerFactory.getLogger(DataSourceTableRule.class);
 
+	public void init(boolean f) {
+
+		if (this.tableAndDbRuleMap == null || this.tableAndDbRuleMap.isEmpty()) {
+			this.init();
+		}
+	}
+
 	public void setDefaultDataSourceKey(String defaultDataSourceKey) {
 		this.defaultDataSourceKey = defaultDataSourceKey;
 	}

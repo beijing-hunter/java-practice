@@ -29,9 +29,8 @@ public class DbRouteFactory {
 	public static String getRouteDbName(List<String> defaultDbs, AnalysisResult result) {
 
 		List<String> dbs = null;
-		tableExeRrecord(result);
 
-		if (!result.isSuccess()) {
+		if (result == null || !result.isSuccess()) {
 			dbs = defaultDbs;
 		} else {
 			dbs = result.getDbSources();
