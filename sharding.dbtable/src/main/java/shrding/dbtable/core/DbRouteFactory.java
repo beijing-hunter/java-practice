@@ -26,7 +26,7 @@ public class DbRouteFactory {
 		return routeTableRecordMap;
 	}
 
-	public static synchronized String getRouteDbName(List<String> defaultDbs, AnalysisResult result) {
+	public static String getRouteDbName(List<String> defaultDbs, AnalysisResult result) {
 
 		List<String> dbs = null;
 		tableExeRrecord(result);
