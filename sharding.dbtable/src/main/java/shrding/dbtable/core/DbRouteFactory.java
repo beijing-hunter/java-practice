@@ -2,6 +2,7 @@ package shrding.dbtable.core;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 import shrding.dbtable.core.DataSourceTableRule.AnalysisResult;
@@ -17,6 +18,8 @@ public class DbRouteFactory {
 	private static Map<String, Long> routeDbRecordMap = new ConcurrentHashMap<String, Long>();
 
 	private static Map<String, DbTableRouteRecord> routeTableRecordMap = new ConcurrentHashMap<String, DbTableRouteRecord>();
+
+	private static Random dbRandom = new Random();
 
 	public static Map<String, Long> getRouteDbRecordMap() {
 		return routeDbRecordMap;
@@ -36,35 +39,18 @@ public class DbRouteFactory {
 			dbs = result.getDbSources();
 		}
 
-		tableExeRrecord(result, dbs);
+		int index = dbRandom.nextInt(dbs.size());
+		String dbKey = dbs.get(index);
 
-		String minDbkey = null;
-		long minExeCount = 0l;
-		int i = 0;
+		Long exeCount = routeDbRecordMap.get(dbKey);
 
-		for (String dbKey : dbs) {
-
-			Long exeCount = routeDbRecordMap.get(dbKey);
-
-			if (exeCount == null) {
-				exeCount = 0L;
-				routeDbRecordMap.put(dbKey, exeCount);
-			}
-
-			if (i == 0) {
-				minExeCount = exeCount;
-				minDbkey = dbKey;
-				i++;
-			}
-
-			if (exeCount <= minExeCount) {
-				minExeCount = exeCount;
-				minDbkey = dbKey;
-			}
+		if (exeCount == null) {
+			exeCount = 0L;
+			routeDbRecordMap.put(dbKey, exeCount);
 		}
 
-		routeDbRecordMap.put(minDbkey, minExeCount + 1);
-		return minDbkey;
+		routeDbRecordMap.put(dbKey, exeCount + 1);
+		return dbKey;
 	}
 
 	private static void tableExeRrecord(AnalysisResult result, List<String> dbs) {
