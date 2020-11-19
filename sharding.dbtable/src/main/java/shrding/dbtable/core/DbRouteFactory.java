@@ -29,13 +29,14 @@ public class DbRouteFactory {
 	public static String getRouteDbName(List<String> defaultDbs, AnalysisResult result) {
 
 		List<String> dbs = null;
-		tableExeRrecord(result);
 
 		if (!result.isSuccess()) {
 			dbs = defaultDbs;
 		} else {
 			dbs = result.getDbSources();
 		}
+
+		tableExeRrecord(result, dbs);
 
 		String minDbkey = null;
 		long minExeCount = 0l;
@@ -66,9 +67,9 @@ public class DbRouteFactory {
 		return minDbkey;
 	}
 
-	private static void tableExeRrecord(AnalysisResult result) {
+	private static void tableExeRrecord(AnalysisResult result, List<String> dbs) {
 
-		if (!result.isSuccess()) {
+		if (result.getTables() == null || result.getTables().isEmpty()) {
 			return;
 		}
 
@@ -77,7 +78,7 @@ public class DbRouteFactory {
 
 		if (record == null) {
 
-			record = new DbTableRouteRecord(joinTableKey, 0, result.getDbSources());
+			record = new DbTableRouteRecord(joinTableKey, 0, dbs);
 			routeTableRecordMap.put(joinTableKey, record);
 		}
 
