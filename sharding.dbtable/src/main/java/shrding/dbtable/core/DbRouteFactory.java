@@ -39,19 +39,8 @@ public class DbRouteFactory {
 			dbs = result.getDbSources();
 		}
 
-		tableExeRrecord(result, dbs);
-
 		int index = dbRandom.nextInt(dbs.size());
 		String dbKey = dbs.get(index);
-
-		Long exeCount = routeDbRecordMap.get(dbKey);
-
-		if (exeCount == null) {
-			exeCount = 0L;
-			routeDbRecordMap.put(dbKey, exeCount);
-		}
-
-		routeDbRecordMap.put(dbKey, exeCount + 1);
 		return dbKey;
 	}
 

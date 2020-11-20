@@ -105,13 +105,6 @@ public class DataSourceTableRule {
 			return dbs == null ? this.defaultDataSourceKeyList : dbs;
 		}
 
-		String joinTableKey = JSON.toJSONString(tables);
-		DbTableRouteRecord dbTableRecord = DbRouteFactory.getRouteTableRecordMap().get(joinTableKey);
-
-		if (dbTableRecord != null) {
-			return dbTableRecord.getRefDbs();
-		}
-
 		int retainCount = 0;
 		List<String> retainResults = null;
 
