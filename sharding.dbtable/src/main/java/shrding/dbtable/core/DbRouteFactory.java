@@ -39,6 +39,8 @@ public class DbRouteFactory {
 			dbs = result.getDbSources();
 		}
 
+		tableExeRrecord(result, dbs);
+
 		int index = dbRandom.nextInt(dbs.size());
 		String dbKey = dbs.get(index);
 
