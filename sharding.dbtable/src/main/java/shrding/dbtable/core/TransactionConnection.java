@@ -37,7 +37,10 @@ public class TransactionConnection {
 		fieldUnwrappedConnection.setAccessible(true);
 
 		Connection connection = DataSourceUtils.getConnection(dataSource);
+
 		TransactionContext context = new TransactionContext(transaction, fieldConnection.get(transaction), fieldUnwrappedConnection.get(transaction), fieldDataSource.get(transaction), dataSource, connection);
+
+		((Connection) context.getOldCon()).commit();
 
 		fieldConnection.set(transaction, connection);
 		fieldDataSource.set(transaction, dataSource);
