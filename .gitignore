@@ -1,3 +1,6 @@
 *.class
 shard.datasource/.settings/
 shard.datasource/.project
+sharding.dbtable/.project
+sharding.dbtable/.settings/org.eclipse.jdt.core.prefs
+sharding.dbtable/.settings/
