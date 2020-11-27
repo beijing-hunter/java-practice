@@ -21,6 +21,8 @@ public class TransactionContext {
 	private DataSource newDataSource;
 
 	private Connection newConnection;
+	
+	private boolean isConnectionTransactional;
 
 	public TransactionContext(SpringManagedTransaction transaction, Object oldCon, Object oldUCon, Object oldDataSource, DataSource newDataSource, Connection newConnection) {
 		super();
@@ -30,6 +32,14 @@ public class TransactionContext {
 		this.oldDataSource = oldDataSource;
 		this.newDataSource = newDataSource;
 		this.newConnection = newConnection;
+	}
+
+	public boolean isConnectionTransactional() {
+		return isConnectionTransactional;
+	}
+
+	public void setConnectionTransactional(boolean isConnectionTransactional) {
+		this.isConnectionTransactional = isConnectionTransactional;
 	}
 
 	public SpringManagedTransaction getTransaction() {

@@ -52,6 +52,15 @@ public class ShardDbTableHandler {
 		return TransactionConnection.setNewConnection(invocation, this.dataSourceMap.get(dataSourceKey));
 	}
 
+	public TransactionContext handlerMaster(Invocation invocation) throws Exception {
+
+		String sql = ExecutorPluginUtils.getSqlByInvocation(invocation);
+
+		AnalysisResult result = this.tableRule.analysisRule(sql);
+		String defaultDbKey = this.tableRule.getDefaultDataSourceKeyList().get(0);
+		return TransactionConnection.setNewConnection(invocation, this.dataSourceMap.get(defaultDbKey));
+	}
+
 	public void close(Invocation invocation, TransactionContext context) throws Exception {
 
 		if (context == null) {
