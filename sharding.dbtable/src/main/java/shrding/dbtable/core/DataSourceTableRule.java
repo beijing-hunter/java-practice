@@ -27,6 +27,10 @@ import net.sf.jsqlparser.util.TablesNamesFinder;
  */
 public class DataSourceTableRule {
 
+	private String last_insert_id01 = "last_insert_id";
+
+	private String last_insert_id02 = "LAST_INSERT_ID";
+
 	/**
 	 * 默认数据源key
 	 */
@@ -80,6 +84,12 @@ public class DataSourceTableRule {
 
 		try {
 
+			boolean isLast = sql.indexOf(last_insert_id01) >= 0 || sql.indexOf(last_insert_id02) >= 0;
+
+			if (isLast) {
+				return new AnalysisResult(null, null, false);
+			}
+
 			statement = CCJSqlParserUtil.parse(sql);
 
 			if (statement instanceof Select) {
@@ -87,8 +97,8 @@ public class DataSourceTableRule {
 				TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
 				List<String> tables = tablesNamesFinder.getTableList(selectStatement);
 				List<String> dbSources = this.extractDbSource(tables);
-				this.logger.debug("sharding.dbtable:tables={},dbName={}", JSON.toJSONString(tables),
-						JSON.toJSONString(dbSources));
+				//this.logger.debug("sharding.dbtable:tables={},dbName={}", JSON.toJSONString(tables),
+						//JSON.toJSONString(dbSources));
 				return new AnalysisResult(dbSources, tables);
 			} else {
 				return new AnalysisResult(null, null, false);
