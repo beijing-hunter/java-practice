@@ -30,6 +30,27 @@ public class TransactionConnection {
 
 	private static Logger logger = LoggerFactory.getLogger(TransactionConnection.class);
 
+	public static TransactionContext setNewConnection(Invocation invocation) throws Exception {
+
+		CachingExecutor executor = (CachingExecutor) invocation.getTarget();
+		SpringManagedTransaction transaction = (SpringManagedTransaction) executor.getTransaction();
+
+		Field fieldConnection = transaction.getClass().getDeclaredField(fieldConName);
+		Field fieldDataSource = transaction.getClass().getDeclaredField(fieldDbName);
+		Field fieldUnwrappedConnection = transaction.getClass().getDeclaredField(fieldUConName);
+		Field filedIsConnectionTransactional = transaction.getClass().getDeclaredField(fieldIsConnectionTransactional);
+		fieldConnection.setAccessible(true);
+		fieldDataSource.setAccessible(true);
+		fieldUnwrappedConnection.setAccessible(true);
+		filedIsConnectionTransactional.setAccessible(true);
+
+		TransactionContext context = new TransactionContext(transaction, fieldConnection.get(transaction),
+				fieldUnwrappedConnection.get(transaction), fieldDataSource.get(transaction), null, null);
+		context.setConnectionTransactional(filedIsConnectionTransactional.getBoolean(transaction));
+		context.setSelectSql(false);
+		return context;
+	}
+
 	public static TransactionContext setNewConnection(Invocation invocation, DataSource dataSource) throws Exception {
 
 		CachingExecutor executor = (CachingExecutor) invocation.getTarget();
@@ -45,13 +66,11 @@ public class TransactionConnection {
 		filedIsConnectionTransactional.setAccessible(true);
 
 		Connection connection = DataSourceUtils.getConnection(dataSource);
-		connection.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
 
-		TransactionContext context = new TransactionContext(transaction, fieldConnection.get(transaction), fieldUnwrappedConnection.get(transaction), fieldDataSource.get(transaction), dataSource, connection);
+		TransactionContext context = new TransactionContext(transaction, fieldConnection.get(transaction),
+				fieldUnwrappedConnection.get(transaction), fieldDataSource.get(transaction), dataSource, connection);
 		context.setConnectionTransactional(filedIsConnectionTransactional.getBoolean(transaction));
-		logger.debug("connectionTransactional={}", context.isConnectionTransactional());
 
-		filedIsConnectionTransactional.set(transaction, false);
 		fieldConnection.set(transaction, connection);
 		fieldDataSource.set(transaction, dataSource);
 		fieldUnwrappedConnection.set(transaction, connection);
@@ -67,6 +86,13 @@ public class TransactionConnection {
 	 * @throws Exception
 	 */
 	public static void close(Invocation invocation, TransactionContext context) throws Exception {
+
+		if (!context.isSelectSql()) {
+
+			Connection oldCon = (Connection) context.getOldCon();
+			oldCon.commit();
+			return;
+		}
 
 		DataSourceUtils.releaseConnection(context.getNewConnection(), context.getNewDataSource());
 

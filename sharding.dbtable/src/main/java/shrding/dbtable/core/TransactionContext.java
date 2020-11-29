@@ -21,10 +21,13 @@ public class TransactionContext {
 	private DataSource newDataSource;
 
 	private Connection newConnection;
-	
+
 	private boolean isConnectionTransactional;
 
-	public TransactionContext(SpringManagedTransaction transaction, Object oldCon, Object oldUCon, Object oldDataSource, DataSource newDataSource, Connection newConnection) {
+	private boolean isSelectSql = true;
+
+	public TransactionContext(SpringManagedTransaction transaction, Object oldCon, Object oldUCon, Object oldDataSource,
+			DataSource newDataSource, Connection newConnection) {
 		super();
 		this.transaction = transaction;
 		this.oldCon = oldCon;
@@ -32,6 +35,14 @@ public class TransactionContext {
 		this.oldDataSource = oldDataSource;
 		this.newDataSource = newDataSource;
 		this.newConnection = newConnection;
+	}
+
+	public void setSelectSql(boolean isSelectSql) {
+		this.isSelectSql = isSelectSql;
+	}
+
+	public boolean isSelectSql() {
+		return isSelectSql;
 	}
 
 	public boolean isConnectionTransactional() {

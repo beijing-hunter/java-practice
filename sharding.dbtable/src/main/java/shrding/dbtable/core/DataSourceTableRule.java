@@ -87,8 +87,11 @@ public class DataSourceTableRule {
 				TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
 				List<String> tables = tablesNamesFinder.getTableList(selectStatement);
 				List<String> dbSources = this.extractDbSource(tables);
-				this.logger.debug("sharding.dbtable:tables={},dbName={}", JSON.toJSONString(tables), JSON.toJSONString(dbSources));
+				this.logger.debug("sharding.dbtable:tables={},dbName={}", JSON.toJSONString(tables),
+						JSON.toJSONString(dbSources));
 				return new AnalysisResult(dbSources, tables);
+			} else {
+				return new AnalysisResult(null, null, false);
 			}
 
 		} catch (JSQLParserException e) {
@@ -168,10 +171,23 @@ public class DataSourceTableRule {
 
 		private List<String> tables;
 
+		private boolean isSelectSql = true;
+
 		public AnalysisResult(List<String> dbSources, List<String> tables) {
 			super();
 			this.dbSources = dbSources;
 			this.tables = tables;
+		}
+
+		public AnalysisResult(List<String> dbSources, List<String> tables, boolean isSelectSql) {
+			super();
+			this.dbSources = dbSources;
+			this.tables = tables;
+			this.isSelectSql = isSelectSql;
+		}
+
+		public boolean isSelectSql() {
+			return isSelectSql;
 		}
 
 		public List<String> getDbSources() {
