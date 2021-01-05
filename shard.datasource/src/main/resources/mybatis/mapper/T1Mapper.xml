@@ -98,14 +98,14 @@
     </if>
   </delete>
   <insert id="insert" parameterType="shard.datasource.entity.T1">
-    <selectKey keyProperty="id" order="BEFORE" resultType="java.lang.Integer">
+    <selectKey keyProperty="id"   resultType="java.lang.Integer">
       id
     </selectKey>
     insert into t1 (id, title)
     values (#{id,jdbcType=INTEGER}, #{title,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="shard.datasource.entity.T1">
-    <selectKey keyProperty="id" order="BEFORE" resultType="java.lang.Integer">
+    <selectKey keyProperty="id"   resultType="java.lang.Integer">
       id
     </selectKey>
     insert into t1

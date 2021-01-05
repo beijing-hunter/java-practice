@@ -111,6 +111,11 @@ public class DataSourceTableRule {
 
 		return new AnalysisResult(null, null, false);
 	}
+	
+	public static void main(String[] args) throws JSQLParserException {
+		String sql="select p.userId as authorId from cm_post p where p.id in ()";
+		CCJSqlParserUtil.parse(sql);
+	}
 
 	private List<String> extractDbSource(List<String> tables) {
 
